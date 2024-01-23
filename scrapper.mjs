@@ -227,25 +227,31 @@ function delay(time = 3000) {
 
   await swapButton.click();
 
+
   await delay();
 
-  const closeButton = await extensionPage.waitForSelector("button[type=button]",{
+  await extensionPage.waitForSelector("button[type=button]",{
     timeout : 600000
   });
-
-  await delay();
 
   const textStatus = await extensionPage.waitForSelector("p[size='28']")
 
   const value = await textStatus.evaluate(el => el.textContent); 
 
-  if(value.toLocaleLowerCase() === "it's done!"){
+  if(
+    value.toLowerCase() === "it's done!" || 
+    value.toLowerCase() === "swapping tokens..."
+  ){
     console.log('Swap Berhasil :)')
   }else{
     console.log('Swap Gagal :(');
   }
 
-  await closeButton.click();
+  const closeButtonAgain = await extensionPage.waitForSelector("button[type=button]",{
+    timeout : 30000
+  });
+
+  closeButtonAgain.click()
 
   // await delay();
 
@@ -254,6 +260,7 @@ function delay(time = 3000) {
   // });
 
   // await toHome.click();
+  
   // SWAP TOKEN
 
   // TUNGGU 5 DETIK UNTUK MENUTUP BROWSER
