@@ -104,9 +104,9 @@ async function onSwap({extensionPage,swapToTitle,swapToName,swapFromTitle,swapFr
         value.toLowerCase() === "it's done!" || 
         value.toLowerCase() === "swapping tokens..."
     ){
-        console.log('Swap Berhasil :)')
+        console.log('Swap Berhasil ' + swapFromTitle + ' -> ' + swapToTitle + ' :)')
     }else{
-        console.log('Swap Gagal :(');
+        console.log('Swap Gagal ' + swapFromTitle + ' -> ' + swapToTitle + ' :(')
 
         throw new Error("Swap Pertama Gagal");
     }
@@ -120,162 +120,181 @@ async function onSwap({extensionPage,swapToTitle,swapToName,swapFromTitle,swapFr
 }
 
 for await (const [index,pharse] of recovery_pharses.entries()){
+    let browser = null;
+
     try{
-        console.log(pharse);
+        console.log({
+            ...pharse,
+            index
+        });
 
-        // console.log('swap');
-        // SWAP SOL
-            const EXTENSION_PATH = 'C:\\Users\\ACER\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\bfnaelmomeimhlpmgjnjophhpkkoljpa\\23.19.0_0'
-            const EXTENSION_ID = 'bfnaelmomeimhlpmgjnjophhpkkoljpa';
+        if(index === 0){
+            // console.log('swap');
+            // SWAP SOL
+                const EXTENSION_PATH = 'C:\\Users\\ACER\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\bfnaelmomeimhlpmgjnjophhpkkoljpa\\23.19.0_0'
+                const EXTENSION_ID = 'bfnaelmomeimhlpmgjnjophhpkkoljpa';
 
-            const browser = await puppeteer.launch({
-                headless : false,
-                args: [
-                    `--disable-extensions-except=${EXTENSION_PATH}`,
-                    `--load-extension=${EXTENSION_PATH}`,
-                    "--no-sandbox",
-                ]
-            });
+                browser = await puppeteer.launch({
+                    headless : false,
+                    args: [
+                        `--disable-extensions-except=${EXTENSION_PATH}`,
+                        `--load-extension=${EXTENSION_PATH}`,
+                        "--no-sandbox",
+                    ]
+                });
 
-            await delay();
+                await delay();
 
-            const newPageList = await browser.pages();
+                const newPageList = await browser.pages();
 
-            const page = newPageList[1];
+                const page = newPageList[1];
 
-            await page.bringToFront();
+                await page.bringToFront();
 
-            await delay();
+                await delay();
 
-            const elementImportRecoveryPharseButton = await page
-            .waitForSelector('button[data-testid=import-recovery-phrase-button]',{
-                timeout : 30000
-            });
+                const elementImportRecoveryPharseButton = await page
+                .waitForSelector('button[data-testid=import-recovery-phrase-button]',{
+                    timeout : 30000
+                });
 
-            await elementImportRecoveryPharseButton.click();
+                await elementImportRecoveryPharseButton.click();
 
-            await page
-            .waitForSelector('input[data-testid=secret-recovery-phrase-word-input-0]',{
-                timeout : 30000
-            });
-
-            const pharse_word = pharse.word.split(" ");
-            
-            for (const [indexPharse,valuePharse] of pharse_word.entries()) {    
                 await page
-                    .type('input[data-testid=secret-recovery-phrase-word-input-' + indexPharse + ']', valuePharse);
-            }
+                .waitForSelector('input[data-testid=secret-recovery-phrase-word-input-0]',{
+                    timeout : 30000
+                });
 
-            const elementImportWallet = await page
-            .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
-                timeout : 30000
-            });
+                const pharse_word = pharse.word.split(" ");
+                
+                for (const [indexPharse,valuePharse] of pharse_word.entries()) {    
+                    await page
+                        .type('input[data-testid=secret-recovery-phrase-word-input-' + indexPharse + ']', valuePharse);
+                }
 
-            await elementImportWallet.click();
+                const elementImportWallet = await page
+                .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
+                    timeout : 30000
+                });
 
-            await delay();
+                await elementImportWallet.click();
 
-            const elementContinue = await page
-            .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
-                timeout : 30000
-            });
+                await delay();
 
-            await elementContinue.click();
+                const elementContinue = await page
+                .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
+                    timeout : 30000
+                });
 
-            await page
-            .waitForSelector('input[data-testid=onboarding-form-password-input]',{
-                timeout : 30000
-            });
+                await elementContinue.click();
 
-            await page
-            .type('input[data-testid=onboarding-form-password-input]', "12345678910");
+                await page
+                .waitForSelector('input[data-testid=onboarding-form-password-input]',{
+                    timeout : 30000
+                });
 
-            await page
-            .type('input[data-testid=onboarding-form-confirm-password-input]', "12345678910");
+                await page
+                .type('input[data-testid=onboarding-form-password-input]', "12345678910");
 
-            await page
-            .$eval('input[data-testid=onboarding-form-terms-of-service-checkbox]', (el) => el.click());
+                await page
+                .type('input[data-testid=onboarding-form-confirm-password-input]', "12345678910");
 
-            const elementSubmitPassword = await page
-            .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
-                timeout : 30000
-            });
+                await page
+                .$eval('input[data-testid=onboarding-form-terms-of-service-checkbox]', (el) => el.click());
 
-            await elementSubmitPassword.click();
+                const elementSubmitPassword = await page
+                .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
+                    timeout : 30000
+                });
 
-            await delay();
+                await elementSubmitPassword.click();
 
-            const elementGetStarted = await page
-            .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
-                timeout : 3000
-            });
+                await delay();
 
-            await elementGetStarted.click();
+                const elementGetStarted = await page
+                .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
+                    timeout : 3000
+                });
 
-            await newPageList[0].bringToFront();
+                await elementGetStarted.click();
 
-            await delay();
+                await newPageList[0].bringToFront();
 
-            const lastPage = await browser.newPage();
+                await delay();
 
-            await lastPage.goto(`chrome-extension://${EXTENSION_ID}/popup.html`);
+                const lastPage = await browser.newPage();
 
-            await delay(5000);
+                await lastPage.goto(`chrome-extension://${EXTENSION_ID}/popup.html`);
 
-            const newExtensionPageList = await browser.pages();
+                await delay(5000);
 
-            const extensionPage = newExtensionPageList[1];
+                const newExtensionPageList = await browser.pages();
 
-            // FIRST
-                onSwap({
-                    extensionPage : extensionPage,
-                    swapFromTitle : 'Solana',
-                    swapFromName : 'SOL',
-                    swapToTitle : 'Usdc',
-                    swapToName : 'USDC'
-                })
-            // FIRST
+                const extensionPage = newExtensionPageList[1];
 
-            await delay();
+                // FIRST
+                    await onSwap({
+                        extensionPage : extensionPage,
+                        swapFromTitle : 'Solana',
+                        swapFromName : 'SOL',
+                        swapToTitle : 'Usdc',
+                        swapToName : 'USDC'
+                    })
+                // FIRST
 
-            // SECOND
-                onSwap({
-                    extensionPage : extensionPage,
-                    swapFromTitle : 'Usdc',
-                    swapFromName : 'USDC',
-                    swapToTitle : 'Solana',
-                    swapToName : 'SOL'
-                })
-            // SECOND
+                await delay(15000);
 
-            await delay();
+                // SECOND
+                    await onSwap({
+                        extensionPage : extensionPage,
+                        swapFromTitle : 'Usdc',
+                        swapFromName : 'USDC',
+                        swapToTitle : 'Solana',
+                        swapToName : 'SOL'
+                    })
+                // SECOND
 
-            // CLOSE
-                // for(const closePage of newExtensionPageList){
-                //     await closePage.close();
-                // }
+                await delay(15000);
 
-                // await browser.close();
-            // CLOSE
+                // CLOSE
+                    for(const closePage of newExtensionPageList){
+                        await closePage.close();
+                    }
 
-            // await delay(15000);
-        // SWAP SOL
+                    await browser.close();
+                // CLOSE
+
+                await delay(15000);
+            // SWAP SOL
+        }
 
         // if(index !== (recovery_pharses.length - 1)){
             // console.log('transfer');
-
+            
             // const connection = new Connection("https://api.mainnet-beta.solana.com");
 
             // GET BALANCE
                 // let balance = await connection.getBalance(new PublicKey(pharse.address));
 
-                // console.log(`Wallet Balance: ${balance / LAMPORTS_PER_SOL}`);
-            
-                // console.log('Transfer Amount : ' + parseFloat((parseFloat(balance) / parseFloat(LAMPORTS_PER_SOL)).toFixed(1)));
+                // let wallet_balance = parseFloat(balance) / parseFloat(LAMPORTS_PER_SOL);
+                // console.log(`Wallet Balance: ` + wallet_balance);
+                
+                // let transfer_amount =  parseFloat((parseFloat(balance) / parseFloat(LAMPORTS_PER_SOL)).toFixed(2));
+
+                // if(wallet_balance < transfer_amount){
+                //     transfer_amount -= 0.01
+
+                //     transfer_amount = parseFloat(transfer_amount.toFixed(2))
+                // }
+
+                // console.log('Transfer Amount : ' + transfer_amount);
             // GET BALANCE
-
+            
             // TRANSFER SOL 
-
+            // if(parseFloat(transfer_amount) === 0.00){
+            //     throw new Error("Transfer Sol Gagal Nominal 0.00");
+            // }
+            
             // let feePayer = null;
 
             // try{
@@ -295,7 +314,7 @@ for await (const [index,pharse] of recovery_pharses.entries()){
             //     SystemProgram.transfer({
             //         fromPubkey: feePayer.publicKey,
             //         toPubkey: new PublicKey(recovery_pharses[index + 1].address),
-            //         lamports : parseFloat((parseFloat(balance) / parseFloat(LAMPORTS_PER_SOL)).toFixed(1)) * parseFloat(LAMPORTS_PER_SOL)
+            //         lamports : transfer_amount * parseFloat(LAMPORTS_PER_SOL)
             //     })
             //     );
             //     tx.feePayer = feePayer.publicKey;
@@ -305,15 +324,17 @@ for await (const [index,pharse] of recovery_pharses.entries()){
             //     console.log(`txhash: ${txhash}`);
             // })();
             // TRANSFER SOL 
+
+            // await delay(30000);
         // }
 
-        // console.log("=========================")
-
-        // await delay(15000);
+        console.log("=========================")
     }catch(err){
-        console.log(pharse);
-
         console.log(err);
+
+        if(browser){
+            await browser.close();
+        }
 
         break;
     }
