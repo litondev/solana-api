@@ -1,9 +1,6 @@
-import axios from "axios";
 import { Connection, Keypair, Transaction, SystemProgram, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID,createTransferInstruction,getOrCreateAssociatedTokenAccount,createTransferCheckedInstruction,getMint,transferChecked,getAssociatedTokenAddress,createAssociatedTokenAccountInstruction } from "@solana/spl-token";
 import bs58 from "bs58";
 import puppeteer from 'puppeteer';
-
 
 import recovery_pharses from './pharses.json' assert { type: "json" };
 
@@ -128,205 +125,201 @@ for await (const [index,pharse] of recovery_pharses.entries()){
             index
         });
 
-        if(index === 0){
-            // console.log('swap');
-            // SWAP SOL
-                const EXTENSION_PATH = 'C:\\Users\\ACER\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\bfnaelmomeimhlpmgjnjophhpkkoljpa\\23.19.0_0'
-                const EXTENSION_ID = 'bfnaelmomeimhlpmgjnjophhpkkoljpa';
+        // console.log('swap');
 
-                browser = await puppeteer.launch({
-                    headless : false,
-                    args: [
-                        `--disable-extensions-except=${EXTENSION_PATH}`,
-                        `--load-extension=${EXTENSION_PATH}`,
-                        "--no-sandbox",
-                    ]
-                });
+        // SWAP SOL
+            const EXTENSION_PATH = 'C:\\Users\\ACER\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\bfnaelmomeimhlpmgjnjophhpkkoljpa\\23.19.0_0'
+            const EXTENSION_ID = 'bfnaelmomeimhlpmgjnjophhpkkoljpa';
 
-                await delay();
+            browser = await puppeteer.launch({
+                headless : false,
+                args: [
+                    `--disable-extensions-except=${EXTENSION_PATH}`,
+                    `--load-extension=${EXTENSION_PATH}`,
+                    "--no-sandbox",
+                ]
+            });
 
-                const newPageList = await browser.pages();
+            await delay();
 
-                const page = newPageList[1];
+            const newPageList = await browser.pages();
 
-                await page.bringToFront();
+            const page = newPageList[1];
 
-                await delay();
+            await page.bringToFront();
 
-                const elementImportRecoveryPharseButton = await page
-                .waitForSelector('button[data-testid=import-recovery-phrase-button]',{
-                    timeout : 30000
-                });
+            await delay();
 
-                await elementImportRecoveryPharseButton.click();
+            const elementImportRecoveryPharseButton = await page
+            .waitForSelector('button[data-testid=import-recovery-phrase-button]',{
+                timeout : 30000
+            });
 
+            await elementImportRecoveryPharseButton.click();
+
+            await page
+            .waitForSelector('input[data-testid=secret-recovery-phrase-word-input-0]',{
+                timeout : 30000
+            });
+
+            const pharse_word = pharse.word.split(" ");
+            
+            for (const [indexPharse,valuePharse] of pharse_word.entries()) {    
                 await page
-                .waitForSelector('input[data-testid=secret-recovery-phrase-word-input-0]',{
-                    timeout : 30000
-                });
+                    .type('input[data-testid=secret-recovery-phrase-word-input-' + indexPharse + ']', valuePharse);
+            }
 
-                const pharse_word = pharse.word.split(" ");
-                
-                for (const [indexPharse,valuePharse] of pharse_word.entries()) {    
-                    await page
-                        .type('input[data-testid=secret-recovery-phrase-word-input-' + indexPharse + ']', valuePharse);
+            const elementImportWallet = await page
+            .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
+                timeout : 30000
+            });
+
+            await elementImportWallet.click();
+
+            await delay();
+
+            const elementContinue = await page
+            .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
+                timeout : 30000
+            });
+
+            await elementContinue.click();
+
+            await page
+            .waitForSelector('input[data-testid=onboarding-form-password-input]',{
+                timeout : 30000
+            });
+
+            await page
+            .type('input[data-testid=onboarding-form-password-input]', "12345678910");
+
+            await page
+            .type('input[data-testid=onboarding-form-confirm-password-input]', "12345678910");
+
+            await page
+            .$eval('input[data-testid=onboarding-form-terms-of-service-checkbox]', (el) => el.click());
+
+            const elementSubmitPassword = await page
+            .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
+                timeout : 30000
+            });
+
+            await elementSubmitPassword.click();
+
+            await delay();
+
+            const elementGetStarted = await page
+            .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
+                timeout : 3000
+            });
+
+            await elementGetStarted.click();
+
+            await newPageList[0].bringToFront();
+
+            await delay();
+
+            const lastPage = await browser.newPage();
+
+            await lastPage.goto(`chrome-extension://${EXTENSION_ID}/popup.html`);
+
+            await delay(5000);
+
+            const newExtensionPageList = await browser.pages();
+
+            const extensionPage = newExtensionPageList[1];
+
+            // FIRST
+                await onSwap({
+                    extensionPage : extensionPage,
+                    swapFromTitle : 'Solana',
+                    swapFromName : 'SOL',
+                    swapToTitle : 'Usdc',
+                    swapToName : 'USDC'
+                })
+            // FIRST
+
+            await delay(10000);
+
+            // SECOND
+                await onSwap({
+                    extensionPage : extensionPage,
+                    swapFromTitle : 'Usdc',
+                    swapFromName : 'USDC',
+                    swapToTitle : 'Solana',
+                    swapToName : 'SOL'
+                })
+            // SECOND
+
+            await delay(10000);
+
+            // CLOSE
+                for(const closePage of newExtensionPageList){
+                    await closePage.close();
                 }
 
-                const elementImportWallet = await page
-                .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
-                    timeout : 30000
-                });
+                await browser.close();
+            // CLOSE
 
-                await elementImportWallet.click();
+            await delay(10000);
+        // SWAP SOL
 
-                await delay();
+        // console.log('transfer');
+        // TRANSFER SOL 
+        if(index !== (recovery_pharses.length - 1)){
+            const connection = new Connection("https://api.mainnet-beta.solana.com");
 
-                const elementContinue = await page
-                .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
-                    timeout : 30000
-                });
+            let balance = await connection.getBalance(new PublicKey(pharse.address));
 
-                await elementContinue.click();
-
-                await page
-                .waitForSelector('input[data-testid=onboarding-form-password-input]',{
-                    timeout : 30000
-                });
-
-                await page
-                .type('input[data-testid=onboarding-form-password-input]', "12345678910");
-
-                await page
-                .type('input[data-testid=onboarding-form-confirm-password-input]', "12345678910");
-
-                await page
-                .$eval('input[data-testid=onboarding-form-terms-of-service-checkbox]', (el) => el.click());
-
-                const elementSubmitPassword = await page
-                .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
-                    timeout : 30000
-                });
-
-                await elementSubmitPassword.click();
-
-                await delay();
-
-                const elementGetStarted = await page
-                .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
-                    timeout : 3000
-                });
-
-                await elementGetStarted.click();
-
-                await newPageList[0].bringToFront();
-
-                await delay();
-
-                const lastPage = await browser.newPage();
-
-                await lastPage.goto(`chrome-extension://${EXTENSION_ID}/popup.html`);
-
-                await delay(5000);
-
-                const newExtensionPageList = await browser.pages();
-
-                const extensionPage = newExtensionPageList[1];
-
-                // FIRST
-                    await onSwap({
-                        extensionPage : extensionPage,
-                        swapFromTitle : 'Solana',
-                        swapFromName : 'SOL',
-                        swapToTitle : 'Usdc',
-                        swapToName : 'USDC'
-                    })
-                // FIRST
-
-                await delay(15000);
-
-                // SECOND
-                    await onSwap({
-                        extensionPage : extensionPage,
-                        swapFromTitle : 'Usdc',
-                        swapFromName : 'USDC',
-                        swapToTitle : 'Solana',
-                        swapToName : 'SOL'
-                    })
-                // SECOND
-
-                await delay(15000);
-
-                // CLOSE
-                    for(const closePage of newExtensionPageList){
-                        await closePage.close();
-                    }
-
-                    await browser.close();
-                // CLOSE
-
-                await delay(15000);
-            // SWAP SOL
-        }
-
-        // if(index !== (recovery_pharses.length - 1)){
-            // console.log('transfer');
+            let wallet_balance = parseFloat(balance) / parseFloat(LAMPORTS_PER_SOL);
+            console.log(`Wallet Balance: ` + wallet_balance);
             
-            // const connection = new Connection("https://api.mainnet-beta.solana.com");
+            let transfer_amount =  parseFloat((parseFloat(balance) / parseFloat(LAMPORTS_PER_SOL)).toFixed(2));
 
-            // GET BALANCE
-                // let balance = await connection.getBalance(new PublicKey(pharse.address));
+            if(wallet_balance < transfer_amount){
+                transfer_amount -= 0.01
 
-                // let wallet_balance = parseFloat(balance) / parseFloat(LAMPORTS_PER_SOL);
-                // console.log(`Wallet Balance: ` + wallet_balance);
-                
-                // let transfer_amount =  parseFloat((parseFloat(balance) / parseFloat(LAMPORTS_PER_SOL)).toFixed(2));
+                transfer_amount = parseFloat(transfer_amount.toFixed(2))
+            }
 
-                // if(wallet_balance < transfer_amount){
-                //     transfer_amount -= 0.01
-
-                //     transfer_amount = parseFloat(transfer_amount.toFixed(2))
-                // }
-
-                // console.log('Transfer Amount : ' + transfer_amount);
-            // GET BALANCE
+            console.log('Transfer Amount : ' + transfer_amount);
+        
+            if(parseFloat(transfer_amount) === 0.00){
+                throw new Error("Transfer Sol Gagal Nominal 0.00");
+            }
             
-            // TRANSFER SOL 
-            // if(parseFloat(transfer_amount) === 0.00){
-            //     throw new Error("Transfer Sol Gagal Nominal 0.00");
-            // }
-            
-            // let feePayer = null;
+            let feePayer = null;
 
-            // try{
-            //     const convertKey = new Uint8Array(JSON.parse(pharse.key));
+            try{
+                const convertKey = new Uint8Array(JSON.parse(pharse.key));
 
-            //     feePayer = Keypair.fromSecretKey(
-            //         bs58.decode(bs58.encode(convertKey))    
-            //     );
-            // }catch(err){    
-            //     feePayer = Keypair.fromSecretKey(
-            //         bs58.decode(pharse.key)   
-            //     );
-            // }
+                feePayer = Keypair.fromSecretKey(
+                    bs58.decode(bs58.encode(convertKey))    
+                );
+            }catch(err){    
+                feePayer = Keypair.fromSecretKey(
+                    bs58.decode(pharse.key)   
+                );
+            }
 
             // (async () => {
-            //     let tx = new Transaction().add(
-            //     SystemProgram.transfer({
-            //         fromPubkey: feePayer.publicKey,
-            //         toPubkey: new PublicKey(recovery_pharses[index + 1].address),
-            //         lamports : transfer_amount * parseFloat(LAMPORTS_PER_SOL)
-            //     })
-            //     );
-            //     tx.feePayer = feePayer.publicKey;
+                let tx = new Transaction().add(
+                SystemProgram.transfer({
+                    fromPubkey: feePayer.publicKey,
+                    toPubkey: new PublicKey(recovery_pharses[index + 1].address),
+                    lamports : transfer_amount * parseFloat(LAMPORTS_PER_SOL)
+                })
+                );
+                tx.feePayer = feePayer.publicKey;
         
-            //     let txhash = await connection.sendTransaction(tx, [feePayer]);
+                let txhash = await connection.sendTransaction(tx, [feePayer]);
         
-            //     console.log(`txhash: ${txhash}`);
+                console.log(`txhash: ${txhash}`);
             // })();
-            // TRANSFER SOL 
 
-            // await delay(30000);
-        // }
+            await delay(30000);
+        }
+        // TRANSFER SOL 
 
         console.log("=========================")
     }catch(err){
