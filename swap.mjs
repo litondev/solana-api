@@ -2,6 +2,12 @@ import { Connection, Keypair, Transaction, SystemProgram, PublicKey, LAMPORTS_PE
 import bs58 from "bs58";
 import puppeteer from 'puppeteer';
 
+// FIRST 68 usd
+// AKHIR 50 usd
+// TOTAL 68 - 50 => 18 usd / 10 wallet
+
+// SOL MUST BE SWAP BY NUMBER
+
 import recovery_pharses from './pharses.json' assert { type: "json" };
 
 function delay(time = 3000) {
@@ -10,7 +16,7 @@ function delay(time = 3000) {
     });
 }
 
-async function onSwap({extensionPage,swapToTitle,swapToName,swapFromTitle,swapFromName}){
+async function onSwap({extensionPage,swapToTitle,swapToName,swapFromTitle,swapFromName,pharse = null}){
     const toSwap = await extensionPage
         .waitForSelector('a[data-testid=bottom-tab-nav-button-swap]',{
             timeout : 30000
@@ -20,9 +26,9 @@ async function onSwap({extensionPage,swapToTitle,swapToName,swapFromTitle,swapFr
 
     await delay();
 
-    // BISA BERUBAH
+    // BISA BERUBAH CARD 
     const cards = await extensionPage
-    .$$("div[class='sc-dRtGhb jUaEpY']")
+    .$$("div[class='sc-cjVSuP jDekLu']")
 
     await delay();
 
@@ -43,13 +49,31 @@ async function onSwap({extensionPage,swapToTitle,swapToName,swapFromTitle,swapFr
 
     await delay();
 
-    // BISA BERUBAH
-    const maxButton = await extensionPage
-    .waitForSelector("div[class='sc-bXbnwD cdpSQT']",{
-        timeout : 30000
-    });
+    // BISA BERUBAH MAX BUTTON
+    if(
+        swapFromName === 'SOL' && 
+        pharse
+    ){
+        const connection = new Connection("https://api.mainnet-beta.solana.com");
 
-    await maxButton.click();
+        let balance = await connection.getBalance(new PublicKey(pharse.address));
+        
+        let swap_amount =  parseFloat((parseFloat(balance) / parseFloat(LAMPORTS_PER_SOL)).toFixed(2));
+
+        swap_amount -= 0.1
+
+        swap_amount = parseFloat(swap_amount.toFixed(2))
+
+        await extensionPage
+            .type('input[name=amount]', swap_amount.toString());
+    }else{
+        const maxButton = await extensionPage
+        .waitForSelector("div[class='sc-gkXSjM biuPGG']",{
+            timeout : 30000
+        });
+
+        await maxButton.click();
+    }
 
     await delay();
 
@@ -68,7 +92,7 @@ async function onSwap({extensionPage,swapToTitle,swapToName,swapFromTitle,swapFr
 
     await cardTo.click();
 
-    // BISA BERUBAH
+    // BISA BERUBAH REVIEW BUTTON
     const reviewButton = await extensionPage
     .waitForSelector("button[class='sc-eCImPb fgwvjA']",{
         timeout : 50000
@@ -121,14 +145,15 @@ for await (const [index,pharse] of recovery_pharses.entries()){
 
     try{
         console.log({
-            ...pharse,
+            // ...pharse,
             index
         });
 
-        // console.log('swap');
+        if(index !== 0){
+        console.log('swap');
 
         // SWAP SOL
-            const EXTENSION_PATH = 'C:\\Users\\ACER\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\bfnaelmomeimhlpmgjnjophhpkkoljpa\\23.19.0_0'
+            const EXTENSION_PATH = 'C:\\Users\\ACER\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\bfnaelmomeimhlpmgjnjophhpkkoljpa\\24.0.1_0'
             const EXTENSION_ID = 'bfnaelmomeimhlpmgjnjophhpkkoljpa';
 
             browser = await puppeteer.launch({
@@ -235,7 +260,8 @@ for await (const [index,pharse] of recovery_pharses.entries()){
                     swapFromTitle : 'Solana',
                     swapFromName : 'SOL',
                     swapToTitle : 'Usdc',
-                    swapToName : 'USDC'
+                    swapToName : 'USDC',
+                    pharse
                 })
             // FIRST
 
@@ -251,7 +277,7 @@ for await (const [index,pharse] of recovery_pharses.entries()){
                 })
             // SECOND
 
-            await delay(10000);
+            await delay(30000);
 
             // CLOSE
                 for(const closePage of newExtensionPageList){
@@ -263,8 +289,9 @@ for await (const [index,pharse] of recovery_pharses.entries()){
 
             await delay(10000);
         // SWAP SOL
+        }
 
-        // console.log('transfer');
+        console.log('transfer');
         // TRANSFER SOL 
         if(index !== (recovery_pharses.length - 1)){
             const connection = new Connection("https://api.mainnet-beta.solana.com");
@@ -274,12 +301,15 @@ for await (const [index,pharse] of recovery_pharses.entries()){
             let wallet_balance = parseFloat(balance) / parseFloat(LAMPORTS_PER_SOL);
             console.log(`Wallet Balance: ` + wallet_balance);
             
-            let transfer_amount =  parseFloat((parseFloat(balance) / parseFloat(LAMPORTS_PER_SOL)).toFixed(2));
+            let transfer_amount =  parseFloat((parseFloat(balance) / parseFloat(LAMPORTS_PER_SOL)).toFixed(3));
+            
+            if(
+                parseFloat(wallet_balance) < parseFloat(transfer_amount) || 
+                parseFloat(wallet_balance.toFixed(3)) === parseFloat(transfer_amount)
+            ){
+                transfer_amount -= 0.008;
 
-            if(wallet_balance < transfer_amount){
-                transfer_amount -= 0.01
-
-                transfer_amount = parseFloat(transfer_amount.toFixed(2))
+                transfer_amount = parseFloat(transfer_amount.toFixed(3))
             }
 
             console.log('Transfer Amount : ' + transfer_amount);
@@ -302,20 +332,18 @@ for await (const [index,pharse] of recovery_pharses.entries()){
                 );
             }
 
-            // (async () => {
-                let tx = new Transaction().add(
-                SystemProgram.transfer({
-                    fromPubkey: feePayer.publicKey,
-                    toPubkey: new PublicKey(recovery_pharses[index + 1].address),
-                    lamports : transfer_amount * parseFloat(LAMPORTS_PER_SOL)
-                })
-                );
-                tx.feePayer = feePayer.publicKey;
-        
-                let txhash = await connection.sendTransaction(tx, [feePayer]);
-        
-                console.log(`txhash: ${txhash}`);
-            // })();
+            let tx = new Transaction().add(
+            SystemProgram.transfer({
+                fromPubkey: feePayer.publicKey,
+                toPubkey: new PublicKey(recovery_pharses[index + 1].address),
+                lamports : transfer_amount * parseFloat(LAMPORTS_PER_SOL)
+            })
+            );
+            tx.feePayer = feePayer.publicKey;
+    
+            let txhash = await connection.sendTransaction(tx, [feePayer]);
+    
+            console.log(`txhash: ${txhash}`);
 
             await delay(30000);
         }
