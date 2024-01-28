@@ -149,7 +149,6 @@ for await (const [index,pharse] of recovery_pharses.entries()){
             index
         });
 
-        if(index !== 0){
         console.log('swap');
 
         // SWAP SOL
@@ -289,7 +288,6 @@ for await (const [index,pharse] of recovery_pharses.entries()){
 
             await delay(10000);
         // SWAP SOL
-        }
 
         console.log('transfer');
         // TRANSFER SOL 
