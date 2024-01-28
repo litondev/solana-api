@@ -305,7 +305,31 @@ for await (const [index,pharse] of recovery_pharses.entries()){
                 parseFloat(wallet_balance) < parseFloat(transfer_amount) || 
                 parseFloat(wallet_balance.toFixed(3)) === parseFloat(transfer_amount)
             ){
-                transfer_amount -= 0.008;
+                let transfer_decrease = [0.001,0.002,0.003,0.004,0.005,0.006,0.007,0.008,0.009];
+
+                let isFindDecrease = false;
+
+                for(let decrase of transfer_decrease.entries()){
+                    let temp_transfer_amount = transfer_amount;
+
+                    temp_transfer_amount -= decrase;
+
+                    let left_amount = parseFloat(wallet_balance) - parseFloat(temp_transfer_amount);
+
+                    if(
+                        left_amount < 0.003 && 
+                        left_amount > 0.002 &&
+                        !isFindDecrease 
+                    ){
+                        transfer_amount -= decrase;
+
+                        isFindDecrease = true;
+                    }
+                }
+
+                if(!isFindDecrease){
+                    transfer_amount -= 0.002
+                }
 
                 transfer_amount = parseFloat(transfer_amount.toFixed(3))
             }
