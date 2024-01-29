@@ -4,7 +4,7 @@ import puppeteer from 'puppeteer';
 
 // FIRST 68 usd
 // AKHIR 50 usd
-// TOTAL 68 - 50 => 18 usd / 10 wallet
+// TOTAL 68 - 50 => 18 usd / 10 wallet (PERCOBAAN)
 
 // SOL MUST BE SWAP BY NUMBER
 
@@ -252,6 +252,10 @@ for await (const [index,pharse] of recovery_pharses.entries()){
             const newExtensionPageList = await browser.pages();
 
             const extensionPage = newExtensionPageList[1];
+
+            // PYTH -> Pyth 
+            // MNDE -> Mari
+            // SAROS -> Saros
 
             // FIRST
                 await onSwap({
