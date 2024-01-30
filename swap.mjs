@@ -7,8 +7,8 @@ import puppeteer from 'puppeteer';
 // TOTAL 68 - 50 => 18 usd / 10 wallet (PERCOBAAN)
 
 // FRIST 25 usd
-// AKHIR 
-// TOTAL 
+// AKHIR 22 usd
+// TOTAL 25 - 22 => 3 usd / 10 wallet (UJI TERAKHIR)
 
 // SOL MUST BE SWAP BY NUMBER
 
