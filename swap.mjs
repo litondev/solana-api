@@ -6,6 +6,10 @@ import puppeteer from 'puppeteer';
 // AKHIR 50 usd
 // TOTAL 68 - 50 => 18 usd / 10 wallet (PERCOBAAN)
 
+// FRIST 25 usd
+// AKHIR 
+// TOTAL 
+
 // SOL MUST BE SWAP BY NUMBER
 
 import recovery_pharses from './pharses.json' assert { type: "json" };
@@ -146,6 +150,7 @@ for await (const [index,pharse] of recovery_pharses.entries()){
     try{
         console.log({
             // ...pharse,
+            address : pharse.address,
             index
         });
 

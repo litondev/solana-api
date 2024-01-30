@@ -10,7 +10,7 @@ function delay(time = 3000) {
 }
 
 async function reSend(result){
-    const tokenMintAddress = new PublicKey('3W52uCb8NW8ruMF9mmJX3oKiYAjdPai4633srsZFQCS6')
+    const tokenMintAddress = new PublicKey('JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN')
 
     const connection = new Connection("https://api.mainnet-beta.solana.com",{
         commitment: "confirmed",
@@ -56,6 +56,8 @@ async function reSend(result){
         senderWallet.publicKey,
         parseFloat(result.account.data.parsed.info.tokenAmount.uiAmount) * parseFloat(decimal)
     )
+
+    console.log("DONE")
 }
 
 (async () => {
@@ -100,7 +102,7 @@ async function reSend(result){
                         {
                             // JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN JUP
                             // CONTOH DUMY
-                            "mint": "3W52uCb8NW8ruMF9mmJX3oKiYAjdPai4633srsZFQCS6"
+                            "mint": "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN"
                         },
                         {
                             "encoding": "jsonParsed"
@@ -139,7 +141,7 @@ async function reSend(result){
         }
 
         if(isThirdRequest){
-            await delay(6000);
+            await delay(4000);
 
             isThirdRequest = false;
 
