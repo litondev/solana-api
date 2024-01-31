@@ -22,13 +22,15 @@ async function reSend(result){
 
     const receiverPubkey = new PublicKey("8HtAyYFDg3UnfBDkXRNhbS2PCdxdz2icQqv3DyHeCUmS")
 
+    console.log("HITUNG DESIMAL");
+
     let decimal = "1";
 
     for(let i of Array(parseInt(result.account.data.parsed.info.tokenAmount.decimals)).keys()){
         decimal += "0";
     }
 
-    console.log('Mint Receiver');
+    console.log('MINT RECEIVER');
 
     const receiverTokenAccount = await getOrCreateAssociatedTokenAccount(
         connection,
@@ -37,7 +39,7 @@ async function reSend(result){
         receiverPubkey 
     );
 
-    console.log('Mint Sender');
+    console.log('MINT SENDER');
 
     const senderTokenAccount = await getOrCreateAssociatedTokenAccount(
         connection,
@@ -46,7 +48,7 @@ async function reSend(result){
         senderWallet.publicKey
     );
 
-    console.log('Kirim Token');
+    console.log('KIRIM TOKEN');
 
     await transfer(
         connection,
@@ -57,38 +59,37 @@ async function reSend(result){
         parseFloat(result.account.data.parsed.info.tokenAmount.uiAmount) * parseFloat(decimal)
     )
 
-    console.log("DONE")
+    console.log("SELESAI")
 }
 
 (async () => {
-    let isThirdRequest = false;
-    let countRequest = 1;
     let wallet_balance = 0.00;
     let tokenFound = null;
 
     while(true){
-        if(countRequest === 2){
-            isThirdRequest = true;
-        }else{
-            countRequest += 1;
-        }
-        
         // GET SOL
+        console.log("PROSES SOL");
+
         if(parseFloat(wallet_balance) < 0.002){
             const connection = new Connection("https://api.mainnet-beta.solana.com");
+
+            console.log("REQUEST SOL KE API");
 
             let balance = await connection.getBalance(new PublicKey("2rtYe69wgYwk5sXpgdakMMc6V1x8httYi2Arfphh4qnH"));
 
             wallet_balance = parseFloat(balance) / parseFloat(LAMPORTS_PER_SOL);
 
-            console.log('Request Sol');
+            console.log('ADA SOL : ' + wallet_balance);
         }else{
-            console.log('Ada Sol');
+            console.log('ADA SOL : ' + wallet_balance);
         }
         // GET SOL 
 
         // GET TOKEN
+        console.log("PROSES TOKEN")
         if(!tokenFound){ 
+            console.log("REQUEST JUMLAH TOKEN KE API");
+
             const response = await axios({
                 url: `https://api.mainnet-beta.solana.com`,
                 method: "post",
@@ -115,9 +116,9 @@ async function reSend(result){
                 tokenFound = response.data.result.value[0];
             }
             
-            console.log('Request Token');
+            console.log('ADA TOKEN : ' + tokenFound);
         }else{
-            console.log('Ada Token');
+            console.log('ADA TOKEN : ' + tokenFound);
         }
         // GET TOKEN 
 
@@ -125,7 +126,9 @@ async function reSend(result){
             tokenFound &&
             parseFloat(wallet_balance) >= 0.002
         ){
-            try{
+            console.log("PROSES SEND");
+
+            try{                
                 await reSend(tokenFound);
             }catch(e){
                 console.log(e);
@@ -133,21 +136,11 @@ async function reSend(result){
 
             break;
         }else{
-            console.log('balance : ' + wallet_balance);
+            console.log('ADA SOL : ' + wallet_balance);
 
-            //   console.log('data : ');
-
-            //   console.log(response.data.result.value);
+            console.log('ADA TOKEN : ' + tokenFound);
         }
 
-        if(isThirdRequest){
-            await delay(4000);
-
-            isThirdRequest = false;
-
-            countRequest = 0;
-        }else{
-            await delay(4000);
-        }
+        await delay(4000);
     }
 })()

@@ -15,114 +15,155 @@ import puppeteer from 'puppeteer';
 import recovery_pharses from './pharses.json' assert { type: "json" };
 
 function delay(time = 3000) {
+    console.log("DELAY PROSES " + time);
+
     return new Promise(function(resolve) { 
         setTimeout(resolve, time)
     });
 }
 
 async function onSwap({extensionPage,swapToTitle,swapToName,swapFromTitle,swapFromName,pharse = null}){
+    console.log("CARI BUTTON MENU SWAP");
+
     const toSwap = await extensionPage
         .waitForSelector('a[data-testid=bottom-tab-nav-button-swap]',{
             timeout : 30000
         });
 
+    console.log("KLIK BUTTON");
+
     await toSwap.click();
 
     await delay();
 
-    // BISA BERUBAH CARD 
+    console.log("CARI CARD SWAP DARI")
     const cards = await extensionPage
     .$$("div[class='sc-cjVSuP jDekLu']")
+    // BISA BERUBAH CARD 
 
     await delay();
+
+    console.log("KLIK CARD DARI");
 
     await cards[0].click();
 
     await delay();
 
+    console.log("MASUKAN TOKEN DARI");
+
     await extensionPage.type("input[placeholder='Search...']",swapFromTitle)
     // Solana
 
+    console.log("CARI CARD TOKEN DARI");
     const cardFrom = await extensionPage
     .waitForSelector('div[data-testid=fungible-token-row-' + swapFromName +']',{
         timeout : 30000
     });
     // SOL
 
+    console.log("KLIK CARD TOKEN");
+
     await cardFrom.click();
 
     await delay();
 
-    // BISA BERUBAH MAX BUTTON
     if(
         swapFromName === 'SOL' && 
         pharse
     ){
         const connection = new Connection("https://api.mainnet-beta.solana.com");
 
+        console.log("AMBIL SOL BALANCE");
+
         let balance = await connection.getBalance(new PublicKey(pharse.address));
         
+        console.log("PERHITUNGAN SOL YANG DI SWAP");
+
         let swap_amount =  parseFloat((parseFloat(balance) / parseFloat(LAMPORTS_PER_SOL)).toFixed(2));
 
         swap_amount -= 0.1
 
         swap_amount = parseFloat(swap_amount.toFixed(2))
 
+        console.log("SOL SWAP : " + swap_amount);
+
+        console.log("ISI JUMLAH");
+
         await extensionPage
             .type('input[name=amount]', swap_amount.toString());
     }else{
+        console.log("CARI MAX BUTTON");
+
         const maxButton = await extensionPage
         .waitForSelector("div[class='sc-gkXSjM biuPGG']",{
             timeout : 30000
         });
+        // BISA BERUBAH MAX BUTTON
+
+        console.log("KLIK BUTTON");
 
         await maxButton.click();
     }
 
     await delay();
 
+    console.log("KLIK CARD KE");
+
     await cards[1].click();
 
     await delay();
 
+    console.log("MASUKAN TOKEN KE");
     await extensionPage.type("input[placeholder='Search...']",swapToTitle)
     // Usdc
 
+    console.log("CARI TOKEN KE");
     const cardTo = await extensionPage
     .waitForSelector('div[data-testid=fungible-token-row-'+swapToName+']',{
         timeout : 30000
     });
     // USDC
 
+    console.log("KLIK TOKEN");
     await cardTo.click();
 
-    // BISA BERUBAH REVIEW BUTTON
+    console.log("CARI REVIEW BUTTON");
+
     const reviewButton = await extensionPage
     .waitForSelector("button[class='sc-eCImPb fgwvjA']",{
         timeout : 50000
     });
+    // BISA BERUBAH REVIEW BUTTON
+
+    console.log("KLIK BUTTON");
 
     await reviewButton.click();
 
     await delay();
 
+    console.log("CARI SWAP BUTTON");
     const swapButton = await extensionPage
     .waitForSelector("button[type=button]",{
         timeout : 50000
     });
 
+    console.log("KLIK BUTTON");
     await swapButton.click();
 
     await delay();
+
+    console.log("CARI BUTTON CLOSE");
 
     await extensionPage
     .waitForSelector("button[type=button]",{
         timeout : 600000
     });
 
+    console.log("CARI TEXT");
     const textStatus = await extensionPage
     .waitForSelector("p[size='28']")
 
+    console.log("AMBIL TEXT");
     const value = await textStatus.evaluate(el => el.textContent); 
 
     if(
@@ -133,14 +174,16 @@ async function onSwap({extensionPage,swapToTitle,swapToName,swapFromTitle,swapFr
     }else{
         console.log('Swap Gagal ' + swapFromTitle + ' -> ' + swapToTitle + ' :(')
 
-        throw new Error("Swap Pertama Gagal");
+        throw new Error("Swap Gagal");
     }
 
+    console.log("CARI BUTTON CLOSE");
     const closeButtonAgain = await extensionPage
     .waitForSelector("button[type=button]",{
         timeout : 30000
     });
 
+    console.log("KLIK BUTTON");
     closeButtonAgain.click()
 }
 
@@ -151,14 +194,16 @@ for await (const [index,pharse] of recovery_pharses.entries()){
         console.log({
             // ...pharse,
             address : pharse.address,
-            index
+            index : (index + 1)
         });
 
-        console.log('swap');
+        console.log('PROSES SWAP');
 
         // SWAP SOL
             const EXTENSION_PATH = 'C:\\Users\\ACER\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\bfnaelmomeimhlpmgjnjophhpkkoljpa\\24.0.1_0'
             const EXTENSION_ID = 'bfnaelmomeimhlpmgjnjophhpkkoljpa';
+
+            console.log("INISIAL BROWSER");
 
             browser = await puppeteer.launch({
                 headless : false,
@@ -171,98 +216,151 @@ for await (const [index,pharse] of recovery_pharses.entries()){
 
             await delay();
 
+            console.log("AMBIL HALAMAN");
+
             const newPageList = await browser.pages();
 
+            console.log("AMBIL HALAMAN KE 2");
+
             const page = newPageList[1];
+            
+            console.log("TAMPILKAN HALAMAN KE 2");
 
             await page.bringToFront();
 
             await delay();
 
+            console.log("AMBIL BUTTON IMPORT");
+            
             const elementImportRecoveryPharseButton = await page
             .waitForSelector('button[data-testid=import-recovery-phrase-button]',{
                 timeout : 30000
             });
 
+            console.log("KLIK BUTTON");
+
             await elementImportRecoveryPharseButton.click();
+
+            console.log("CARI INPUTAN PHARSE");
 
             await page
             .waitForSelector('input[data-testid=secret-recovery-phrase-word-input-0]',{
                 timeout : 30000
             });
 
+            console.log("SPLIT PHARSE");
+
             const pharse_word = pharse.word.split(" ");
             
+            console.log("LAKUKAN PERULANGAN PHARSE");
+
             for (const [indexPharse,valuePharse] of pharse_word.entries()) {    
+                console.log("MASUKAN PHARSE KE " + (indexPharse + 1));
+
                 await page
                     .type('input[data-testid=secret-recovery-phrase-word-input-' + indexPharse + ']', valuePharse);
             }
+
+            console.log("CARI BUTTON KIRIM");
 
             const elementImportWallet = await page
             .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
                 timeout : 30000
             });
 
+            console.log("KLIK BUTTON");
+
             await elementImportWallet.click();
 
             await delay();
+
+            console.log("CARI BUTTON CONTINUE");
 
             const elementContinue = await page
             .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
                 timeout : 30000
             });
 
+            console.log("KLIK BUTTON");
+
             await elementContinue.click();
+
+            console.log("CARI INPUTAN PASSWORD");
 
             await page
             .waitForSelector('input[data-testid=onboarding-form-password-input]',{
                 timeout : 30000
             });
 
+            console.log("MASUKAN PASSWORD");
+
             await page
             .type('input[data-testid=onboarding-form-password-input]', "12345678910");
+
+            console.log("MASUKAN PASSWORD KONFRIMASI");
 
             await page
             .type('input[data-testid=onboarding-form-confirm-password-input]', "12345678910");
 
+            console.log("CENTANG TERM OF SERVICE");
+
             await page
             .$eval('input[data-testid=onboarding-form-terms-of-service-checkbox]', (el) => el.click());
+
+            console.log("CARTI BUTTON KIRIM");
 
             const elementSubmitPassword = await page
             .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
                 timeout : 30000
             });
 
+            console.log("KLIK BUTTON")
             await elementSubmitPassword.click();
 
             await delay();
+
+            console.log("CARI BUTTON GET STARTED");
 
             const elementGetStarted = await page
             .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
                 timeout : 3000
             });
 
+            console.log("KLIK BUTTON");
+
             await elementGetStarted.click();
+
+            console.log("PERGI KE HALAMAN 1");
 
             await newPageList[0].bringToFront();
 
             await delay();
 
+            console.log("BUAT HALAMAN BARU");
+
             const lastPage = await browser.newPage();
+
+            console.log("PANGGIL EXTENSION PHANTOM");
 
             await lastPage.goto(`chrome-extension://${EXTENSION_ID}/popup.html`);
 
             await delay(5000);
 
+            console.log("AMBIIL SEMUA HALAMAN");
+            
             const newExtensionPageList = await browser.pages();
+
+            console.log("AMBIL HALAMAN KE 2");
 
             const extensionPage = newExtensionPageList[1];
 
             // PYTH -> Pyth 
-            // MNDE -> Mari
             // SAROS -> Saros
+            // JITO -> Jito
 
             // FIRST
+                console.log("PROSES SWAP SOL -> USDC");
+
                 await onSwap({
                     extensionPage : extensionPage,
                     swapFromTitle : 'Solana',
@@ -276,6 +374,8 @@ for await (const [index,pharse] of recovery_pharses.entries()){
             await delay(10000);
 
             // SECOND
+                console.log("PROSES SWAP USDC -> SOL");
+
                 await onSwap({
                     extensionPage : extensionPage,
                     swapFromTitle : 'Usdc',
@@ -288,26 +388,35 @@ for await (const [index,pharse] of recovery_pharses.entries()){
             await delay(30000);
 
             // CLOSE
+                console.log("TUTUP SEMUA HALAMAN");
                 for(const closePage of newExtensionPageList){
                     await closePage.close();
                 }
 
+                console.log("TUTUP BROWSER")
                 await browser.close();
             // CLOSE
 
             await delay(10000);
         // SWAP SOL
 
-        console.log('transfer');
+        console.log('PROSES TRANSFER');
         // TRANSFER SOL 
         if(index !== (recovery_pharses.length - 1)){
             const connection = new Connection("https://api.mainnet-beta.solana.com");
 
+            console.log("AMBIL BALANCE SOL DARI API");
+
             let balance = await connection.getBalance(new PublicKey(pharse.address));
 
+            console.log("BAGI BALANCE SOL DENGAN SATUAN TERKECILNYA");
+
             let wallet_balance = parseFloat(balance) / parseFloat(LAMPORTS_PER_SOL);
-            console.log(`Wallet Balance: ` + wallet_balance);
+
+            console.log(`JUMLAH SOL : ` + wallet_balance);
             
+            console.log("PERHITUNGAN JUMLAH TRANSFER");
+
             let transfer_amount =  parseFloat((parseFloat(balance) / parseFloat(LAMPORTS_PER_SOL)).toFixed(3));
             
             if(
@@ -343,12 +452,14 @@ for await (const [index,pharse] of recovery_pharses.entries()){
                 transfer_amount = parseFloat(transfer_amount.toFixed(3))
             }
 
-            console.log('Transfer Amount : ' + transfer_amount);
+            console.log('JUMLAH TRANSFER : ' + transfer_amount);
         
             if(parseFloat(transfer_amount) === 0.00){
-                throw new Error("Transfer Sol Gagal Nominal 0.00");
+                throw new Error("TRANSFER SOL GAGAL JUMLAH 0.00");
             }
-            
+
+            console.log("AMBIL PRIVATE KEY");
+
             let feePayer = null;
 
             try{
@@ -363,18 +474,21 @@ for await (const [index,pharse] of recovery_pharses.entries()){
                 );
             }
 
+            console.log("LAKUKAN TRANSFER");
+
             let tx = new Transaction().add(
-            SystemProgram.transfer({
-                fromPubkey: feePayer.publicKey,
-                toPubkey: new PublicKey(recovery_pharses[index + 1].address),
-                lamports : transfer_amount * parseFloat(LAMPORTS_PER_SOL)
-            })
+                SystemProgram.transfer({
+                    fromPubkey: feePayer.publicKey,
+                    toPubkey: new PublicKey(recovery_pharses[index + 1].address),
+                    lamports : transfer_amount * parseFloat(LAMPORTS_PER_SOL)
+                })
             );
+
             tx.feePayer = feePayer.publicKey;
     
             let txhash = await connection.sendTransaction(tx, [feePayer]);
     
-            console.log(`txhash: ${txhash}`);
+            console.log(`TXHASH: ${txhash}`);
 
             await delay(30000);
         }
@@ -385,6 +499,8 @@ for await (const [index,pharse] of recovery_pharses.entries()){
         console.log(err);
 
         if(browser){
+            console.log("TUTUP BROWSER");
+
             await browser.close();
         }
 
