@@ -394,6 +394,12 @@ for await (const [index,pharse] of recovery_pharses.entries()){
             // JITO -> Jito
             // USDC -> Usdc
 
+            // FLUXBOT
+            // JLP
+            // JUP 
+            // MARINDE 
+            // ACCESS PROTOCOL 
+
             // FIRS
                 let swapFromTitle = 'Solana';
                 let swapFromName = 'SOL';
