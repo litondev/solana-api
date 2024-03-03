@@ -389,13 +389,11 @@ for await (const [index,pharse] of recovery_pharses.entries()){
 
             const extensionPage = newExtensionPageList[1];
 
-            // JUP 
-            // WEN
-            // BONK 
-            // BONKSOL
-
             // PYTH -> Pyth 
-            // USDC -> Usdc
+            // JUP -> Jup
+            // WEN -> Wen
+            // Bonk -> Bonk 
+            // BonkSOL -> Bonk
 
             // FIRS
                 let swapFromTitle = 'Solana';
