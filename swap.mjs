@@ -14,9 +14,9 @@ import puppeteer from 'puppeteer';
 
 // SEMISAL ERROR TERUS NAIKIN DELAYNYA BIASANYA  
 
-import recovery_pharses from './pharses1.json' assert { type: "json" };
+import recovery_pharses from './pharses2.json' assert { type: "json" };
 
-function delay(time = 10000) {
+function delay(time = 15000) {
     console.log("------- DELAY PROSES");
 
     return new Promise(function(resolve) { 
@@ -40,9 +40,9 @@ async function onSwap({extensionPage,swapToTitle,swapToName,swapFromTitle,swapFr
 
     console.log("------- CARI CARD SWAP DARI")
     const cards = await extensionPage
-    .$$("div[class='sc-cjVSuP jDekLu']")
+    .$$("div[class='sc-edowFN kBnWEO']")
     // BISA BERUBAH CARD 
-
+    
     await delay();
 
     console.log("------- KLIK CARD DARI");
@@ -95,7 +95,7 @@ async function onSwap({extensionPage,swapToTitle,swapToName,swapFromTitle,swapFr
         console.log("------- CARI MAX BUTTON");
 
         const maxButton = await extensionPage
-        .waitForSelector("div[class='sc-gkXSjM biuPGG']",{
+        .waitForSelector("div[class='sc-gAnQpU fySEHy']",{
             timeout : 30000
         });
         // BISA BERUBAH MAX BUTTON
@@ -137,11 +137,11 @@ async function onSwap({extensionPage,swapToTitle,swapToName,swapFromTitle,swapFr
 
     await reviewButton.click();
 
-    await delay();
+    await delay(3000);
 
     console.log("------- CARI SWAP BUTTON");
     const swapButton = await extensionPage
-    .waitForSelector("button[type=button]",{
+    .waitForSelector("button[type=submit]",{
         timeout : 50000
     });
 
@@ -231,220 +231,7 @@ for await (const [index,pharse] of recovery_pharses.entries()){
             address : pharse.address,
             index : (index + 1)
         });
-
-        console.log('PROSES SWAP');
-
-        // SWAP SOL
-            const EXTENSION_PATH = 'C:\\Users\\ACER\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\bfnaelmomeimhlpmgjnjophhpkkoljpa\\24.0.1_0'
-            const EXTENSION_ID = 'bfnaelmomeimhlpmgjnjophhpkkoljpa';
-
-            console.log("------- INISIAL BROWSER");
-
-            browser = await puppeteer.launch({
-                headless : false,
-                args: [
-                    `--disable-extensions-except=${EXTENSION_PATH}`,
-                    `--load-extension=${EXTENSION_PATH}`,
-                    "--no-sandbox",
-                ]
-            });
-
-            await delay();
-
-            console.log("------- AMBIL HALAMAN");
-
-            const newPageList = await browser.pages();
-
-            console.log("------- AMBIL HALAMAN KE 2");
-
-            const page = newPageList[1];
-            
-            console.log("------- TAMPILKAN HALAMAN KE 2");
-
-            await page.bringToFront();
-
-            await delay();
-
-            console.log("------- AMBIL BUTTON IMPORT");
-            
-            const elementImportRecoveryPharseButton = await page
-            .waitForSelector('button[data-testid=import-recovery-phrase-button]',{
-                timeout : 30000
-            });
-
-            console.log("------- KLIK BUTTON");
-
-            await elementImportRecoveryPharseButton.click();
-
-            console.log("------- CARI INPUTAN PHARSE");
-
-            await page
-            .waitForSelector('input[data-testid=secret-recovery-phrase-word-input-0]',{
-                timeout : 30000
-            });
-
-            console.log("------- SPLIT PHARSE");
-
-            const pharse_word = pharse.word.split(" ");
-            
-            console.log("------- LAKUKAN PERULANGAN PHARSE");
-
-            for (const [indexPharse,valuePharse] of pharse_word.entries()) {    
-                console.log("------- MASUKAN PHARSE KE " + (indexPharse + 1));
-
-                await page
-                    .type('input[data-testid=secret-recovery-phrase-word-input-' + indexPharse + ']', valuePharse);
-            }
-
-            console.log("------- CARI BUTTON KIRIM");
-
-            const elementImportWallet = await page
-            .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
-                timeout : 30000
-            });
-
-            console.log("------- KLIK BUTTON");
-
-            await elementImportWallet.click();
-
-            await delay();
-
-            console.log("------- CARI BUTTON CONTINUE");
-
-            const elementContinue = await page
-            .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
-                timeout : 30000
-            });
-
-            console.log("------- KLIK BUTTON");
-
-            await elementContinue.click();
-
-            console.log("------- CARI INPUTAN PASSWORD");
-
-            await page
-            .waitForSelector('input[data-testid=onboarding-form-password-input]',{
-                timeout : 30000
-            });
-
-            console.log("------- MASUKAN PASSWORD");
-
-            await page
-            .type('input[data-testid=onboarding-form-password-input]', "12345678910");
-
-            console.log("------- MASUKAN PASSWORD KONFRIMASI");
-
-            await page
-            .type('input[data-testid=onboarding-form-confirm-password-input]', "12345678910");
-
-            console.log("------- CENTANG TERM OF SERVICE");
-
-            await page
-            .$eval('input[data-testid=onboarding-form-terms-of-service-checkbox]', (el) => el.click());
-
-            console.log("------- CARTI BUTTON KIRIM");
-
-            const elementSubmitPassword = await page
-            .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
-                timeout : 30000
-            });
-
-            console.log("------- KLIK BUTTON")
-            await elementSubmitPassword.click();
-
-            await delay();
-
-            console.log("------- CARI BUTTON GET STARTED");
-
-            const elementGetStarted = await page
-            .waitForSelector('button[data-testid=onboarding-form-submit-button]',{
-                timeout : 3000
-            });
-
-            console.log("------- PERGI KE HALAMAN 1 ");
-
-            await newPageList[0].bringToFront();
-
-            console.log("------- TUTUP HALAMAN KE 2");
-
-            await newPageList[1].close();
-
-            await delay();
-
-            console.log("------- BUAT HALAMAN BARU");
-
-            const lastPage = await browser.newPage();
-
-            console.log("------- PANGGIL EXTENSION PHANTOM");
-
-            await lastPage.goto(`chrome-extension://${EXTENSION_ID}/popup.html`);
-
-            await delay(5000);
-
-            console.log("------- AMBIIL SEMUA HALAMAN");
-            
-            const newExtensionPageList = await browser.pages();
-
-            console.log("------- AMBIL HALAMAN KE 2");
-
-            const extensionPage = newExtensionPageList[1];
-
-            // PYTH -> Pyth 
-            // JUP -> Jup
-            // WEN -> Wen
-            // Bonk -> Bonk 
-            // BonkSOL -> Bonk
-
-            // FIRS
-                let swapFromTitle = 'Solana';
-                let swapFromName = 'SOL';
-                let swapToTitle = 'Pyth';
-                let swapToName = 'PYTH';
-
-                // if(index !== 0){
-                    console.log("PROSES SWAP " + swapFromTitle + " -> " + swapToTitle);
-
-                    await onSwap({
-                        extensionPage : extensionPage,
-                        swapFromTitle : swapFromTitle,
-                        swapFromName : swapFromName,
-                        swapToTitle : swapToTitle,
-                        swapToName : swapToName,
-                        pharse
-                    })
-                // }
-                
-            // FIRST
-
-            await delay(10000);
-
-            // SECOND
-                console.log("PROSES SWAP " + swapToTitle + " -> " + swapFromTitle);
-
-                await onSwap({
-                    extensionPage : extensionPage,
-                    swapFromTitle : swapToTitle,
-                    swapFromName : swapToName,
-                    swapToTitle : swapFromTitle,
-                    swapToName : swapFromName
-                })
-            // SECOND
-
-            await delay(30000);
-
-            // CLOSE
-                console.log("------- TUTUP SEMUA HALAMAN");
-                for(const closePage of newExtensionPageList){
-                    await closePage.close();
-                }
-
-                console.log("------- TUTUP BROWSER")
-                await browser.close();
-            // CLOSE
-
-            await delay(10000);
-        // SWAP SOL
-
+       
         console.log('PROSES TRANSFER');
         // TRANSFER SOL 
         if(index !== (recovery_pharses.length - 1)){
