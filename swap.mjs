@@ -14,7 +14,7 @@ import puppeteer from 'puppeteer';
 
 // SEMISAL ERROR TERUS NAIKIN DELAYNYA BIASANYA  
 
-import recovery_pharses from './pharses2.json' assert { type: "json" };
+import recovery_pharses from './pharses5.json' assert { type: "json" };
 
 function delay(time = 15000) {
     console.log("------- DELAY PROSES");
